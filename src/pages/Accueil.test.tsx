@@ -52,13 +52,20 @@ test('aucun chargement avant le départ de la requête', async () => {
   expect(screen.getByText(/Recherche en cours/)).toBeInTheDocument();
   await act(async () => attente.resolve(reponse(lieu)));
 });
-test('aucun lieu trouvé est distinct de l’état initial', async () => {
+test('B4 : zzzzzz affiche un résultat vide explicite, distinct de l’état initial et de l’erreur', async () => {
   fetchMock.mockResolvedValueOnce(reponse({ features: [] }));
   afficher(); saisir('zzzzzz'); await avancer();
   expect(screen.getByRole('heading', { name: 'Aucun lieu trouvé' })).toBeInTheDocument();
+  expect(screen.getByText('Aucun lieu ne correspond à « zzzzzz ».')).toBeInTheDocument();
+  expect(screen.getByText(/vérifier l’orthographe/)).toBeInTheDocument();
+  expect(screen.getByText(/élargir la recherche/)).toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: 'La recherche n’a pas abouti' })).not.toBeInTheDocument();
+  expect(screen.queryByText(/Recherche en cours/)).not.toBeInTheDocument();
   expect(introduction()).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Effacer la recherche' }));
   expect(introduction()).toBeInTheDocument();
+  expect(screen.getByLabelText(/Localisation/)).toHaveValue('');
+  expect(screen.queryByRole('heading', { name: 'Aucun lieu trouvé' })).not.toBeInTheDocument();
 });
 test('une erreur est distincte et peut être relancée', async () => {
   fetchMock.mockRejectedValueOnce(new Error('Hors ligne'));
@@ -82,6 +89,31 @@ test('changer le type filtre les résultats déjà chargés sans garder ceux de 
   fireEvent.change(screen.getByLabelText('Type d’organisme'), { target: { value: 'caf' } });
   expect(screen.getByRole('heading', { name: 'Aucun organisme trouvé' })).toBeInTheDocument();
   expect(screen.queryByText('Mairie - Amiens')).not.toBeInTheDocument();
+  expect(screen.getByText(/Aucun organisme du type sélectionné/)).toBeInTheDocument();
+  expect(screen.getByText(/choisir un autre type d’organisme/)).toBeInTheDocument();
+  expect(introduction()).not.toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: 'La recherche n’a pas abouti' })).not.toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('Type d’organisme'), { target: { value: 'mairie' } });
+  expect(screen.getByRole('heading', { name: '1 organisme trouvé' })).toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: 'Aucun organisme trouvé' })).not.toBeInTheDocument();
+});
+
+test('B4 : corriger la saisie après un résultat vide permet de poursuivre la recherche', async () => {
+  fetchMock.mockResolvedValueOnce(reponse({ features: [] }));
+  afficher(); saisir('zzzzzz'); await avancer();
+  saisir('Amiens'); await avancer();
+  expect(screen.getByRole('button', { name: 'Amiens' })).toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: 'Aucun lieu trouvé' })).not.toBeInTheDocument();
+});
+
+test('B4 : une commune sans organisme affiche les conseils et permet de réinitialiser', async () => {
+  fetchMock.mockResolvedValueOnce(reponse(lieu)).mockResolvedValueOnce(reponse({ total_count: 0, results: [] }));
+  afficher(); await choisirLieu();
+  expect(screen.getByRole('heading', { name: 'Aucun organisme trouvé' })).toBeInTheDocument();
+  expect(screen.getByText(/Aucun organisme du type sélectionné n’a été trouvé à « Amiens »/)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Effacer la recherche' }));
+  expect(introduction()).toBeInTheDocument();
+  expect(screen.queryByText(/Commune sélectionnée/)).not.toBeInTheDocument();
 });
 test('C1 : dix frappes rapides ne déclenchent qu’un appel', async () => {
   afficher();

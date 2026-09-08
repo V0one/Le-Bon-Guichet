@@ -53,7 +53,7 @@ export function Recherche() {
       {etat.statut === 'chargement' && <Chargement />}
       {etat.statut === 'erreur' && <EtatErreur message={etat.message} onReessayer={(lieu ? annuaire : geo).relancer} />}
       {!lieu && etat.statut === 'succes' && (lieux.length === 0
-        ? <><h2>Aucun lieu trouvé</h2><p>Vérifiez la commune ou essayez le code postal.</p><Button onClick={() => changerSaisie('')}>Effacer la recherche</Button></>
+        ? <EtatVide nature="lieu" localisation={saisie.trim()} onReinitialiser={() => changerSaisie('')} />
         : <><h2>Sélectionnez un lieu</h2><ul>{lieux.map(proposition => <li key={proposition.id}>
           <Button priority="tertiary no outline" onClick={() => { geo.annuler(); setLieu(proposition); }}>{proposition.libelle}</Button>
         </li>)}</ul></>)}
