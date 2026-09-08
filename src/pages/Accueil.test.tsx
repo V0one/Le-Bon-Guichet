@@ -98,6 +98,33 @@ test('changer le type filtre les résultats déjà chargés sans garder ceux de 
   expect(screen.queryByRole('heading', { name: 'Aucun organisme trouvé' })).not.toBeInTheDocument();
 });
 
+test('B2 : la région d’annonce existe avant la requête et annonce le chargement hors de la zone occupée', async () => {
+  const attente = differee<Response>();
+  fetchMock.mockReturnValueOnce(attente.promise);
+  afficher();
+  const annonce = screen.getByRole('status');
+  expect(annonce).toBeEmptyDOMElement();
+  expect(annonce).toHaveAttribute('aria-live', 'polite');
+  expect(annonce).toHaveAttribute('aria-atomic', 'true');
+  saisir('Amiens'); await avancer();
+  expect(screen.getByRole('status')).toBe(annonce);
+  expect(annonce).toHaveTextContent('Recherche en cours');
+  expect(annonce.closest('[aria-busy="true"]')).toBeNull();
+  await act(async () => attente.resolve(reponse(lieu)));
+  expect(screen.getByRole('status')).toBe(annonce);
+  expect(annonce).toBeEmptyDOMElement();
+});
+
+test('B2 : la recherche Annuaire annonce aussi son chargement dès son départ', async () => {
+  const attente = differee<Response>();
+  fetchMock.mockResolvedValueOnce(reponse(lieu)).mockReturnValueOnce(attente.promise);
+  afficher(); await choisirLieu();
+  expect(screen.getByRole('status')).toHaveTextContent('Recherche en cours');
+  await act(async () => attente.resolve(reponse(annuaire)));
+  expect(screen.getByRole('status')).toBeEmptyDOMElement();
+  expect(screen.getByRole('heading', { name: '1 organisme trouvé' })).toBeInTheDocument();
+});
+
 test('B4 : corriger la saisie après un résultat vide permet de poursuivre la recherche', async () => {
   fetchMock.mockResolvedValueOnce(reponse({ features: [] }));
   afficher(); saisir('zzzzzz'); await avancer();

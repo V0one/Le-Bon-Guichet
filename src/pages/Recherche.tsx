@@ -48,9 +48,9 @@ export function Recherche() {
       <Button type="submit" disabled={saisie.trim().length < LONGUEUR_MINIMALE}>Rechercher</Button>
     </form>
     {lieu && <p>Commune sélectionnée : {lieu.libelle}</p>}
+    <Chargement actif={etat.statut === 'chargement'} />
     <section className="fr-mt-4w" aria-live="polite" aria-busy={etat.statut === 'chargement'}>
       {(etat.statut === 'initial' || etat.statut === 'attente') && <Introduction />}
-      {etat.statut === 'chargement' && <Chargement />}
       {etat.statut === 'erreur' && <EtatErreur message={etat.message} onReessayer={(lieu ? annuaire : geo).relancer} />}
       {!lieu && etat.statut === 'succes' && (lieux.length === 0
         ? <EtatVide nature="lieu" localisation={saisie.trim()} onReinitialiser={() => changerSaisie('')} />
