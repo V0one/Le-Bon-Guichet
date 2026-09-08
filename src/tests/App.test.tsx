@@ -1,6 +1,6 @@
 ﻿import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import App from './App';
+import App from '../App';
 
 test('affiche l’accueil et la mention pédagogique', () => {
   render(<MemoryRouter><App /></MemoryRouter>);

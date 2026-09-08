@@ -1,7 +1,7 @@
 ﻿import { act, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { vi } from 'vitest';
-import { FicheOrganisme } from './FicheOrganisme';
+import { FicheOrganisme } from '../../pages/FicheOrganisme';
 
 const original = globalThis.fetch;
 beforeEach(() => { vi.useFakeTimers(); });

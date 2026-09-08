@@ -56,6 +56,14 @@ Pour exécuter les tests une seule fois :
 npm run test:run
 ```
 
+Les fichiers de test sont regroupés dans `src/tests`, en miroir de l’arborescence
+de `src`.
+
+## Intégration continue
+
+`.github/workflows/CI.yml` exécute `npm ci` puis `npm run test:run` sur Node 24,
+à chaque pull request visant `main` et à chaque commit poussé sur `main`.
+
 ## Compilation
 
 ```sh
@@ -72,6 +80,25 @@ npm run preview
 
 L’hébergement doit renvoyer `index.html` pour les routes applicatives afin de permettre leur ouverture directe avec React Router.
 
+## Accessibilité au clavier
+
+Tout le service s’utilise à la tabulation seule, sans souris.
+
+| Point | Mise en œuvre |
+| --- | --- |
+| ordre de tabulation | sauts de contenu, en-tête, formulaire (type, localisation, bouton), résultats, pied de page — aucun `tabindex` positif |
+| commandes | uniquement des éléments natifs (`select`, `input`, `button`, `a`) ; aucun comportement réservé à la souris |
+| focus visible | anneau `2px solid #0a76f6` avec `outline-offset: 2px` fourni par le DSFR sur `a`, `button`, `input`, `select` et `[tabindex]` en `:focus-visible` ; aucune règle du projet ne le supprime |
+| focus jamais masqué | aucun composant utilisé (`fr-header`, `fr-notice`, `fr-footer`, `fr-container`) n’est en `position: fixed` ni `sticky` — seule la modale d’affichage l’est, et le DSFR y piège le focus et le rend à son déclencheur. Les deux sauts de contenu sont les premiers éléments tabulables |
+| focus jamais perdu | choisir un lieu ou réessayer déplace le focus sur la région de résultats, effacer la recherche le rend au champ Localisation, et changer de page le replace au début du contenu |
+
+Les onze tests de `src/tests/accessibilite.test.tsx` vérifient ces points, dont deux
+analyses `axe-core` (accueil et liste de résultats). Deux réserves : jsdom n’a pas
+de moteur de rendu, donc ni le contraste, ni le tracé de l’anneau de focus, ni le
+recouvrement d’un élément par un autre n’y sont mesurables. Ces trois points sont
+vérifiés par lecture du CSS du DSFR et resteraient à confirmer dans un navigateur
+réel (Playwright ou axe DevTools).
+
 ## Technologies
 
-React 19, TypeScript strict, Vite, React Router v7, `@codegouvfr/react-dsfr`, Vitest et Testing Library.
+React 19, TypeScript strict, Vite, React Router v7, `@codegouvfr/react-dsfr`, Vitest, Testing Library et `vitest-axe`.

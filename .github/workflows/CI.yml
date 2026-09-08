@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  tests:
+    name: Tests et build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      # `npm ci` déclenche le postinstall qui copie les assets DSFR.
+      - run: npm ci
+
+      - run: npm run test:run
+
+      # `npm run build` lance `tsc --noEmit` : les tests ne vérifient aucun type.
+      - run: npm run build
