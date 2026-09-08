@@ -1,16 +1,42 @@
-﻿import { Outlet } from 'react-router';
+import { Outlet } from 'react-router';
 import Header from '@codegouvfr/react-dsfr/Header';
 import Footer from '@codegouvfr/react-dsfr/Footer';
 import SkipLinks from '@codegouvfr/react-dsfr/SkipLinks';
-import Alert from '@codegouvfr/react-dsfr/Alert';
+import Notice from '@codegouvfr/react-dsfr/Notice';
 import { headerFooterDisplayItem } from '@codegouvfr/react-dsfr/Display';
+
+const MARQUE = <>République<br />Française</>;
 
 export function Layout() {
   return <>
-    <SkipLinks links={[{ anchor: '#content', label: 'Contenu' }]} />
-    <Alert severity="info" small description="Projet pédagogique, ne constitue pas un service officiel" />
-    <Header brandTop={<>République<br />Française</>} homeLinkProps={{ to: '/', title: 'Accueil - Le Bon Guichet' }} serviceTitle="Le Bon Guichet" />
-    <main id="content" tabIndex={-1} className="fr-container fr-py-4w"><Outlet /></main>
-    <Footer accessibility="non compliant" bottomItems={[headerFooterDisplayItem]} />
+    <SkipLinks links={[
+      { anchor: '#content', label: 'Contenu' },
+      { anchor: '#fr-header', label: 'Menu' },
+      { anchor: '#fr-footer', label: 'Pied de page' },
+    ]} />
+    <Header
+      id="fr-header"
+      brandTop={MARQUE}
+      homeLinkProps={{ to: '/', title: 'Accueil - Le Bon Guichet' }}
+      serviceTitle="Le Bon Guichet"
+      serviceTagline="Trouver la bonne administration et ses coordonnées"
+    />
+    <Notice
+      severity="info"
+      title="Projet pédagogique"
+      description="Ce site est une démonstration réalisée à des fins d’apprentissage : il ne constitue pas un service officiel de l’administration française."
+      isClosable={false}
+    />
+    <main id="content" tabIndex={-1} className="fr-container fr-py-4w">
+      <Outlet />
+    </main>
+    <Footer
+      id="fr-footer"
+      brandTop={MARQUE}
+      homeLinkProps={{ to: '/', title: 'Accueil - Le Bon Guichet' }}
+      accessibility="non compliant"
+      contentDescription="Le Bon Guichet est un projet pédagogique s’appuyant sur l’API Annuaire de l’administration et la Géoplateforme."
+      bottomItems={[headerFooterDisplayItem]}
+    />
   </>;
 }
