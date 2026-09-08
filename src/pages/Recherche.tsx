@@ -16,6 +16,7 @@ import { Introduction, LONGUEUR_MINIMALE } from "../components/Introduction";
 import { Chargement } from "../components/Chargement";
 import { EtatErreur } from "../components/EtatErreur";
 import { EtatVide } from "../components/EtatVide";
+import "./Recherche.css";
 
 export function Recherche() {
   const [type, setType] = useState("mairie");
@@ -114,16 +115,16 @@ export function Recherche() {
 
       {lieu && <p>Commune sélectionnée : {lieu.libelle}</p>}
 
-      <Chargement actif={etat.statut === "chargement"} />
+      <div className="recherche-chargement">
+        <Chargement actif={etat.statut === "chargement"} />
+      </div>
 
-      {/* Hauteur minimale (60vh) pour empêcher le layout shift. L'annonce de
-          chargement reste au-dessus : B2 exige un nœud stable, hors aria-busy. */}
+      {/* Zone de hauteur stable, défilable au clavier. L'annonce reste hors aria-busy. */}
       <section
         ref={resultats}
-        tabIndex={-1}
+        tabIndex={0}
         aria-label="Résultats de la recherche"
-        className="fr-mt-4w"
-        style={{ minHeight: "60vh" }}
+        className="fr-mt-4w recherche-resultats"
         aria-live="polite"
         aria-busy={etat.statut === "chargement"}
       >

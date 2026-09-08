@@ -1,0 +1,11 @@
+/* B2 : les changements d'état ne déplacent ni le formulaire ni le pied de page. */
+.recherche-resultats {
+  block-size: clamp(24rem, 60vh, 40rem);
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+/* La région reste présente et conserve sa hauteur même lorsque son texte est vide. */
+.recherche-chargement {
+  min-block-size: 1.5em;
+}
