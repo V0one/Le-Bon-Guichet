@@ -17,7 +17,7 @@ export function EtatErreur({ message, onReessayer }: Props) {
         description={`${message} Vos critères de recherche sont conservés.`}
       />
       <p className="fr-mt-2w">
-        Le service de l’Annuaire de l’administration est peut-être indisponible
+        Le service de recherche est peut-être indisponible
         ou votre connexion a été interrompue.
       </p>
       <Button onClick={onReessayer} iconId="fr-icon-refresh-line">

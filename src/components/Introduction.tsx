@@ -28,8 +28,9 @@ export function Introduction() {
         <em>Amiens</em>, <em>80000</em>.
       </p>
       <p className="fr-text--sm">
-        La recherche part automatiquement une fois votre saisie terminée : rien
-        n’est envoyé tant que la localisation n’est pas renseignée.
+        Choisissez un type d’organisme, puis saisissez un lieu. Sélectionnez
+        une proposition pour rechercher les organismes de cette commune.
+        Rien n’est envoyé tant que la localisation n’est pas renseignée.
       </p>
     </>
   );

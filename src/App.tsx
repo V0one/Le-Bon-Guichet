@@ -1,26 +1,15 @@
-import { Link, Route, Routes } from 'react-router';
-import { Alert } from '@codegouvfr/react-dsfr/Alert';
+﻿import { Route, Routes } from 'react-router';
+import { Layout } from './components/Layout';
 import Accueil from './pages/Accueil';
+import { FicheOrganisme } from './pages/FicheOrganisme';
+import { NotFound } from './pages/NotFound';
 
-function App() {
-  return (
-    <main className="fr-container fr-py-4w">
-      <Alert
-        severity="info"
-        small
-        description="Projet pédagogique, ne constitue pas un service officiel"
-      />
-      <Routes>
-        <Route path="/" element={<Accueil />} />
-        <Route path="*" element={
-          <>
-            <h1 className="fr-mt-4w">Page introuvable</h1>
-            <Link to="/">Retour à l’accueil</Link>
-          </>
-        } />
-      </Routes>
-    </main>
-  );
+export default function App() {
+  return <Routes>
+    <Route element={<Layout />}>
+      <Route path="/" element={<Accueil />} />
+      <Route path="/organismes/:id" element={<FicheOrganisme />} />
+      <Route path="*" element={<NotFound />} />
+    </Route>
+  </Routes>;
 }
-
-export default App;

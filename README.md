@@ -36,6 +36,16 @@ Ouvrir l’adresse affichée dans le terminal, par défaut http://localhost:5173
 
 ## Tests
 
+Pour essayer le parcours dans le navigateur :
+
+1. Ouvrir l’accueil : les explications sont visibles et aucune recherche ne démarre.
+2. Choisir un type (Mairie, CAF ou CPAM), saisir `Amiens` et sélectionner la proposition `Amiens`.
+3. Consulter les résultats puis ouvrir une fiche. Les données proviennent des API Géoplateforme et Annuaire.
+4. Dans l’onglet Réseau, ralentir la connexion et changer la saisie pendant une requête : l’appel précédent est annulé et ses résultats ne doivent pas réapparaître.
+5. Essayer `zzzzzz` pour l’état sans lieu trouvé ; couper le réseau puis relancer pour l’état d’erreur.
+
+Les composants utilisent uniquement les styles fournis par le DSFR. La fiche affiche les coordonnées ; le calcul des horaires reste à réaliser. La recherche porte sur les organismes implantés dans la commune choisie.
+
 ```sh
 npm test
 ```

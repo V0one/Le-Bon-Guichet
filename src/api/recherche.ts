@@ -5,10 +5,19 @@ export type EtatRecherche =
   | { statut: 'succes'; url: string; donnees: unknown }
   | { statut: 'erreur'; url: string; message: string };
 
+export type ExecuterRecherche = (url: string, signal: AbortSignal) => Promise<unknown>;
+
+export const lireJson: ExecuterRecherche = async (url, signal) => {
+  const reponse = await fetch(url, { signal });
+  if (!reponse.ok) throw new Error('Échec de la requête HTTP.');
+  return reponse.json();
+};
+
 /** Logique sans React : une instance par recherche indépendante. */
 export function creerRecherche(
   notifier: (etat: EtatRecherche) => void = () => {},
-  delaiMs = 300
+  delaiMs = 300,
+  executer: ExecuterRecherche = lireJson
 ) {
   if (!Number.isFinite(delaiMs) || delaiMs < 0) {
     throw new Error('Le délai doit être un nombre positif ou nul.');
@@ -58,11 +67,7 @@ export function creerRecherche(
 
       let prochainEtat: EtatRecherche;
       try {
-        const reponse = await fetch(cible, { signal: requete.signal });
-        if (!reponse.ok) {
-          throw new Error('Échec de la requête HTTP.');
-        }
-        const donnees: unknown = await reponse.json();
+        const donnees = await executer(cible, requete.signal);
         prochainEtat = { statut: 'succes', url: cible, donnees };
       } catch {
         prochainEtat = {

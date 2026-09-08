@@ -3,14 +3,14 @@ export interface OrganismeNormalise {
   adresse: string;
 }
 
-function objet(valeur: unknown): Record<string, unknown> {
+export function objet(valeur: unknown): Record<string, unknown> {
   if (typeof valeur !== 'object' || valeur === null || Array.isArray(valeur)) {
     return {};
   }
   return valeur as Record<string, unknown>;
 }
 
-function texte(valeur: unknown): string {
+export function texte(valeur: unknown): string {
   return typeof valeur === 'string' ? valeur.trim() : '';
 }
 
