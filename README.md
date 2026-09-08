@@ -1,4 +1,10 @@
-# Getting Started with Create React App
+# Le Bon Guichet — Sujet C
+
+La [documentation J1 : cadrage, API et types du domaine](docs/J1-cadrage-api-domaine.md) présente les appels réels, les formats reçus, leur traitement et la préparation du J2.
+
+Le dépôt utilise encore Create React App ; la migration vers la stack du sujet reste à réaliser. Les instructions ci-dessous décrivent ce socle actuel.
+
+## Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
