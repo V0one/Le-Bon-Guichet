@@ -1,3 +1,4 @@
+import { vi, type Mock } from 'vitest';
 import { creerRecherche } from './recherche';
 
 function differee<T>() {
@@ -20,19 +21,19 @@ async function terminerPromesses() {
   await Promise.resolve();
 }
 
-const fetchInitial = global.fetch;
-let fetchMock: jest.Mock;
+const fetchInitial = globalThis.fetch;
+let fetchMock: Mock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
-  fetchMock = jest.fn().mockResolvedValue(reponse([]));
-  global.fetch = fetchMock;
+  vi.useFakeTimers();
+  fetchMock = vi.fn().mockResolvedValue(reponse([]));
+  globalThis.fetch = fetchMock;
 });
 
 afterEach(() => {
-  jest.clearAllTimers();
-  jest.useRealTimers();
-  global.fetch = fetchInitial;
+  vi.clearAllTimers();
+  vi.useRealTimers();
+  globalThis.fetch = fetchInitial;
 });
 
 test('dix caractères rapides déclenchent une seule requête après la dernière frappe', async () => {
@@ -40,12 +41,12 @@ test('dix caractères rapides déclenchent une seule requête après la dernièr
   const saisie = 'abcdefghij';
   for (let i = 1; i <= saisie.length; i += 1) {
     recherche.rechercher(`/search?q=${saisie.slice(0, i)}`);
-    jest.advanceTimersByTime(20);
+    vi.advanceTimersByTime(20);
   }
   expect(fetchMock).toHaveBeenCalledTimes(0);
-  jest.advanceTimersByTime(279);
+  vi.advanceTimersByTime(279);
   expect(fetchMock).toHaveBeenCalledTimes(0);
-  jest.advanceTimersByTime(1);
+  vi.advanceTimersByTime(1);
   expect(fetchMock).toHaveBeenCalledTimes(1);
   expect(fetchMock.mock.calls[0][0]).toBe('/search?q=abcdefghij');
   await terminerPromesses();
@@ -62,7 +63,7 @@ test('annule le signal de la requête en cours dès la nouvelle saisie', async (
   );
   const recherche = creerRecherche();
   recherche.rechercher('/ancienne');
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   const signal = fetchMock.mock.calls[0][1].signal as AbortSignal;
   expect(signal.aborted).toBe(false);
   recherche.rechercher('/nouvelle');
@@ -74,14 +75,14 @@ test('annule le signal de la requête en cours dès la nouvelle saisie', async (
 
 test('une ancienne réponse ignorante de l’annulation ne remplace pas la plus récente', async () => {
   const ancienne = differee<Response>();
-  const notifier = jest.fn();
+  const notifier = vi.fn();
   fetchMock.mockReturnValueOnce(ancienne.promise);
   fetchMock.mockResolvedValueOnce(reponse(['nouveau']));
   const recherche = creerRecherche(notifier);
   recherche.rechercher('/ancienne');
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   recherche.rechercher('/nouvelle');
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   await terminerPromesses();
   const etatRecent = recherche.getEtat();
   expect(etatRecent).toEqual({ statut: 'succes', url: '/nouvelle', donnees: ['nouveau'] });
@@ -97,7 +98,7 @@ test('ignore aussi un décodage JSON ancien terminé pendant le nouveau debounce
   fetchMock.mockResolvedValueOnce({ ok: true, json: () => json.promise });
   const recherche = creerRecherche();
   recherche.rechercher('/ancienne');
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   await terminerPromesses();
   recherche.rechercher('/nouvelle');
   json.resolve(['ancien']);
@@ -110,9 +111,9 @@ test('une erreur tardive ne remplace pas les résultats récents', async () => {
   fetchMock.mockReturnValueOnce(ancienne.promise);
   const recherche = creerRecherche();
   recherche.rechercher('/ancienne');
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   recherche.rechercher('/nouvelle');
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   await terminerPromesses();
   ancienne.reject(new Error('Ancienne erreur réseau'));
   await terminerPromesses();
@@ -123,7 +124,7 @@ test.each([null, '', '   '])('vider la saisie (%s) supprime une recherche planif
   const recherche = creerRecherche();
   recherche.rechercher('/recherche');
   recherche.rechercher(valeur);
-  jest.advanceTimersByTime(1000);
+  vi.advanceTimersByTime(1000);
   expect(fetchMock).not.toHaveBeenCalled();
   expect(recherche.getEtat()).toEqual({ statut: 'initial' });
 });
@@ -133,7 +134,7 @@ test('annuler pendant une requête empêche sa publication et permet une nouvell
   fetchMock.mockReturnValueOnce(attente.promise);
   const recherche = creerRecherche();
   recherche.rechercher('/recherche');
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   const signal = fetchMock.mock.calls[0][1].signal as AbortSignal;
   recherche.annuler();
   recherche.annuler();
@@ -142,7 +143,7 @@ test('annuler pendant une requête empêche sa publication et permet une nouvell
   await terminerPromesses();
   expect(recherche.getEtat()).toEqual({ statut: 'initial' });
   recherche.rechercher('/autre');
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   await terminerPromesses();
   expect(recherche.getEtat().statut).toBe('succes');
 });
@@ -151,7 +152,7 @@ test('annuler supprime aussi la minuterie avant tout appel réseau', () => {
   const recherche = creerRecherche();
   recherche.rechercher('/recherche');
   recherche.annuler();
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   expect(fetchMock).not.toHaveBeenCalled();
 });
 
@@ -163,7 +164,7 @@ test.each(['reseau', 'http', 'json'])('une erreur actuelle (%s) termine le charg
   }
   const recherche = creerRecherche();
   recherche.rechercher('/recherche');
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   expect(recherche.getEtat().statut).toBe('chargement');
   await terminerPromesses();
   expect(recherche.getEtat()).toEqual({
@@ -176,7 +177,7 @@ test('deux instances ne s’annulent pas mutuellement', async () => {
   const seconde = creerRecherche();
   premiere.rechercher('/premiere');
   seconde.rechercher('/seconde');
-  jest.advanceTimersByTime(300);
+  vi.advanceTimersByTime(300);
   premiere.annuler();
   expect(fetchMock.mock.calls[1][1].signal.aborted).toBe(false);
   await terminerPromesses();
@@ -186,9 +187,9 @@ test('deux instances ne s’annulent pas mutuellement', async () => {
 test('le délai est configurable et les valeurs invalides sont refusées', () => {
   const recherche = creerRecherche(undefined, 500);
   recherche.rechercher('/recherche');
-  jest.advanceTimersByTime(499);
+  vi.advanceTimersByTime(499);
   expect(fetchMock).not.toHaveBeenCalled();
-  jest.advanceTimersByTime(1);
+  vi.advanceTimersByTime(1);
   expect(fetchMock).toHaveBeenCalledTimes(1);
   expect(() => creerRecherche(undefined, -1)).toThrow();
   expect(() => creerRecherche(undefined, NaN)).toThrow();
