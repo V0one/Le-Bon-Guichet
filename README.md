@@ -1,6 +1,22 @@
-﻿# Le Bon Guichet — Sujet C
+# Le Bon Guichet — Sujet C
 
 Application de recherche d’administrations par type et par lieu. Les fonctionnalités sont en cours de développement.
+
+## Page d’accueil
+
+L’accueil présente le service, explique la saisie attendue — une commune ou un
+code postal, 2 caractères au minimum — et lance la recherche seul, 300 ms après
+la dernière frappe. Chaque état a son propre écran :
+
+| État | Écran affiché |
+| --- | --- |
+| avant toute recherche, et pendant l’attente qui précède la requête | présentation du service et explication de la saisie, **sans aucun indicateur de chargement** |
+| requête en cours | indicateur « Recherche en cours… », affiché seulement une fois la requête partie |
+| réponse sans résultat | écran dédié « Aucun organisme trouvé » avec des pistes de correction |
+| échec réseau, HTTP ou JSON | écran d’erreur dédié avec un bouton « Réessayer » |
+
+Aucune requête n’est envoyée tant que la localisation est trop courte. L’affichage
+des fiches (horaires, coordonnées, accessibilité) reste à venir.
 
 ## Installation
 
