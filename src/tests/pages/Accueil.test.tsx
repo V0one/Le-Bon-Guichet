@@ -1,7 +1,7 @@
 ﻿import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { vi, type Mock } from 'vitest';
-import Accueil from './Accueil';
+import Accueil from '../../pages/Accueil';
 
 function reponse(donnees: unknown): Response {
   return { ok: true, json: async () => donnees } as Response;

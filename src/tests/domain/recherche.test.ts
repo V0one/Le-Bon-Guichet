@@ -1,5 +1,5 @@
-﻿import { normaliserLieux } from './lieux';
-import { filtrerOrganismesParType, lirePageAnnuaire, normaliserFiche } from './recherche';
+﻿import { normaliserLieux } from '../../domain/lieux';
+import { filtrerOrganismesParType, lirePageAnnuaire, normaliserFiche } from '../../domain/recherche';
 
 test('les lieux partiels ou nuls ne font pas planter la normalisation', () => {
   expect(normaliserLieux(null)).toEqual([]);

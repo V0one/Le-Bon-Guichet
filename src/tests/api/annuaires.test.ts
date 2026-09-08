@@ -1,5 +1,5 @@
 ﻿import { vi } from 'vitest';
-import { lireAnnuaire, urlOrganismes } from './annuaires';
+import { lireAnnuaire, urlOrganismes } from '../../api/annuaires';
 
 const original = globalThis.fetch;
 afterEach(() => { globalThis.fetch = original; });

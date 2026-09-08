@@ -53,7 +53,7 @@ export function FicheOrganisme() {
         <p>
           <a href={organisme.source} target="_blank" rel="noreferrer">
             Consulter la fiche officielle, les horaires et les informations
-            d’accessibilité
+            d’accessibilité (nouvelle fenêtre)
           </a>
         </p>
       )}
