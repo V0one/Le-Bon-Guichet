@@ -44,7 +44,7 @@ export function Layout() {
       id="fr-footer"
       brandTop={MARQUE}
       homeLinkProps={{ to: '/', title: 'Accueil - Le Bon Guichet' }}
-      accessibility="partially compliant"
+      accessibility="non compliant"
       contentDescription="Le Bon Guichet est un projet pédagogique s’appuyant sur l’API Annuaire de l’administration et la Géoplateforme."
       bottomItems={[headerFooterDisplayItem]}
     />
