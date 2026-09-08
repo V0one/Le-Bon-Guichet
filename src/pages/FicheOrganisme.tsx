@@ -30,6 +30,6 @@ export function FicheOrganisme() {
     {organisme.telephones.length === 0 ? <p>Numéro de téléphone non renseigné.</p>
       : <ul>{organisme.telephones.map((telephone, index) => <li key={index}>{telephone}</li>)}</ul>}
     <h3>Courriel</h3><p>{organisme.courriel || 'Courriel non renseigné.'}</p>
-    {organisme.source && <p><a href={organisme.source} target="_blank" rel="noreferrer">Consulter la fiche officielle, les horaires et les informations d’accessibilité</a></p>}
+    {organisme.source && <p><a href={organisme.source} target="_blank" rel="noreferrer">Consulter la fiche officielle, les horaires et les informations d’accessibilité (nouvelle fenêtre)</a></p>}
   </>;
 }

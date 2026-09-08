@@ -1,5 +1,5 @@
 import { vi, type Mock } from 'vitest';
-import { creerRecherche } from './recherche';
+import { creerRecherche } from '../../api/recherche';
 
 function differee<T>() {
   let resolve!: (valeur: T) => void;

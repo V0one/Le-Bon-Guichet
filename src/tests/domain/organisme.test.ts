@@ -1,4 +1,4 @@
-import { normaliserOrganisme } from './organisme';
+import { normaliserOrganisme } from '../../domain/organisme';
 
 describe('US C2 : normalisation des données manquantes', () => {
   test.each([

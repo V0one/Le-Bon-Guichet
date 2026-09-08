@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Button from '@codegouvfr/react-dsfr/Button';
@@ -20,6 +20,9 @@ export function Recherche() {
   const [lieu, setLieu] = useState<Lieu | null>(null);
   const geo = useRechercheLieu(lieu ? '' : saisie);
   const annuaire = useRecherche(lieu ? urlOrganismes(lieu.codeInsee) : null, lireAnnuaire);
+  const localisation = useRef<HTMLInputElement>(null);
+  const resultats = useRef<HTMLElement>(null);
+  const [focaliserResultats, setFocaliserResultats] = useState(false);
   useEffect(() => { document.title = 'Recherche - Le Bon Guichet'; }, []);
 
   function changerSaisie(valeur: string) {
@@ -29,7 +32,19 @@ export function Recherche() {
     setSaisie(valeur);
   }
 
+  function reinitialiser() {
+    changerSaisie('');
+    localisation.current?.focus();
+  }
+
   const etat = lieu ? annuaire.etat : geo.etat;
+
+  /* US D1 : l'action qui fait disparaître son propre bouton rend le focus à la région de résultats. */
+  useEffect(() => {
+    if (!focaliserResultats || etat.statut === 'chargement' || etat.statut === 'attente') return;
+    resultats.current?.focus();
+    setFocaliserResultats(false);
+  }, [focaliserResultats, etat.statut]);
   const lieux = geo.etat.statut === 'succes' ? normaliserLieux(geo.etat.donnees) : [];
   const organismes = annuaire.etat.statut === 'succes'
     ? filtrerOrganismesParType(lirePageAnnuaire(annuaire.etat.donnees).results, type) : [];
@@ -44,21 +59,21 @@ export function Recherche() {
         <option value="cpam">CPAM</option>
       </Select>
       <Input label="Localisation" hintText="Commune ou code postal, 2 caractères minimum. Exemple : Amiens ou 80000."
-        nativeInputProps={{ value: saisie, onChange: event => changerSaisie(event.target.value), autoComplete: 'off' }} />
+        nativeInputProps={{ ref: localisation, value: saisie, onChange: event => changerSaisie(event.target.value), autoComplete: 'off' }} />
       <Button type="submit" disabled={saisie.trim().length < LONGUEUR_MINIMALE}>Rechercher</Button>
     </form>
     {lieu && <p>Commune sélectionnée : {lieu.libelle}</p>}
     <Chargement actif={etat.statut === 'chargement'} />
-    <section className="fr-mt-4w" aria-live="polite" aria-busy={etat.statut === 'chargement'}>
+    <section ref={resultats} tabIndex={-1} aria-label="Résultats de la recherche" className="fr-mt-4w" aria-live="polite" aria-busy={etat.statut === 'chargement'}>
       {(etat.statut === 'initial' || etat.statut === 'attente') && <Introduction />}
-      {etat.statut === 'erreur' && <EtatErreur message={etat.message} onReessayer={(lieu ? annuaire : geo).relancer} />}
+      {etat.statut === 'erreur' && <EtatErreur message={etat.message} onReessayer={() => { (lieu ? annuaire : geo).relancer(); setFocaliserResultats(true); }} />}
       {!lieu && etat.statut === 'succes' && (lieux.length === 0
-        ? <EtatVide nature="lieu" localisation={saisie.trim()} onReinitialiser={() => changerSaisie('')} />
+        ? <EtatVide nature="lieu" localisation={saisie.trim()} onReinitialiser={reinitialiser} />
         : <><h2>Sélectionnez un lieu</h2><ul>{lieux.map(proposition => <li key={proposition.id}>
-          <Button priority="tertiary no outline" onClick={() => { geo.annuler(); setLieu(proposition); }}>{proposition.libelle}</Button>
+          <Button priority="tertiary no outline" onClick={() => { geo.annuler(); setLieu(proposition); setFocaliserResultats(true); }}>{proposition.libelle}</Button>
         </li>)}</ul></>)}
       {lieu && etat.statut === 'succes' && (organismes.length === 0
-        ? <EtatVide localisation={lieu.commune} onReinitialiser={() => changerSaisie('')} />
+        ? <EtatVide localisation={lieu.commune} onReinitialiser={reinitialiser} />
         : <><h2>{organismes.length} organisme{organismes.length > 1 ? 's' : ''} trouvé{organismes.length > 1 ? 's' : ''}</h2>
           <ul className="fr-grid-row fr-grid-row--gutters">{organismes.map(organisme => <li className="fr-col-12 fr-col-md-6" key={organisme.id}>
             <Card title={organisme.nom} titleAs="h3" desc={organisme.adresse}
