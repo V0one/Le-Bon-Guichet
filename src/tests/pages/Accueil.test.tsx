@@ -27,6 +27,38 @@ function NavigationTest() {
   </>;
 }
 
+test('A3 : une URL partagée restaure la commune et charge directement ses organismes', async () => {
+  render(<MemoryRouter initialEntries={['/?type=mairie&lieu=80000&codeInsee=80021&commune=Amiens']}>
+    <Accueil /><NavigationTest />
+  </MemoryRouter>);
+  await avancer();
+  expect(screen.getByLabelText(/Localisation/)).toHaveValue('80000');
+  expect(screen.getByText('Commune sélectionnée : Amiens')).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Mairie - Amiens' })).toBeInTheDocument();
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(fetchMock.mock.calls[0][0]).toContain('api-lannuaire');
+  fireEvent.change(screen.getByLabelText('Type d’organisme'), { target: { value: 'caf' } });
+  expect(screen.getByLabelText('URL de recherche')).toHaveTextContent('type=caf');
+  fireEvent.click(screen.getByRole('button', { name: 'Retour navigateur' }));
+  expect(screen.getByRole('link', { name: 'Mairie - Amiens' })).toBeInTheDocument();
+});
+
+test('A3 : une sélection ajoute la commune à l’URL et une réinitialisation l’efface', async () => {
+  render(<MemoryRouter><Accueil /><NavigationTest /></MemoryRouter>);
+  await choisirLieu();
+  expect(screen.getByLabelText('URL de recherche')).toHaveTextContent('codeInsee=80021&commune=Amiens');
+  fireEvent.change(screen.getByLabelText('Type d’organisme'), { target: { value: 'caf' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Effacer la recherche' }));
+  expect(screen.getByLabelText('URL de recherche')).toBeEmptyDOMElement();
+  expect(screen.queryByText(/Commune sélectionnée/)).not.toBeInTheDocument();
+});
+
+test('A3 : un code INSEE invalide dans l’URL ne déclenche pas de requête Annuaire', async () => {
+  render(<MemoryRouter initialEntries={['/?lieu=Amiens&codeInsee=invalide']}><Accueil /></MemoryRouter>);
+  await avancer();
+  expect(fetchMock.mock.calls[0][0]).toContain('geocodage');
+});
+
 test('la fusion conserve les critères de l’URL et leur restauration au retour navigateur', async () => {
   render(<MemoryRouter initialEntries={['/?type=caf&lieu=Paris']}>
     <Accueil /><NavigationTest />

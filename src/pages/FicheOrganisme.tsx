@@ -6,6 +6,7 @@ import { lireAnnuaire, urlFiche } from "../api/annuaires";
 import { lirePageAnnuaire, normaliserFiche } from "../domain/recherche";
 import { Chargement } from "../components/Chargement";
 import { EtatErreur } from "../components/EtatErreur";
+import { HorairesOrganisme } from "../components/HorairesOrganisme";
 
 export function FicheOrganisme() {
   const { id = "" } = useParams();
@@ -49,6 +50,19 @@ export function FicheOrganisme() {
       )}
       <h3>Courriel</h3>
       <p>{organisme.courriel || "Courriel non renseigné."}</p>
+      <HorairesOrganisme horaires={organisme.horaires} />
+      <section className="fr-callout" aria-labelledby="accessibilite-titre">
+        <h2 id="accessibilite-titre">Accessibilité physique</h2>
+        {organisme.accessibilite.length === 0 ? (
+          <p>Accessibilité physique non renseignée. Contactez le guichet pour préparer votre venue.</p>
+        ) : organisme.accessibilite.map((adresse, index) => (
+          <div key={index}>
+            <h3>{adresse.libelle || adresse.type || "Lieu d’accueil"}</h3>
+            <p>{adresse.description || "Accessibilité physique non renseignée."}</p>
+            {adresse.note && <p>{adresse.note}</p>}
+          </div>
+        ))}
+      </section>
       {organisme.source && (
         <p>
           <a href={organisme.source} target="_blank" rel="noreferrer">

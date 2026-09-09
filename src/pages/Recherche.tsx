@@ -13,6 +13,7 @@ import {
 } from "../domain/recherche";
 import { normaliserLieux } from "../domain/lieux";
 import type { Lieu } from "../domain/types";
+import { lireLieuRecherche, ecrireRechercheUrl } from "../domain/rechercheUrl";
 import { Introduction, LONGUEUR_MINIMALE } from "../components/Introduction";
 import { Chargement } from "../components/Chargement";
 import { EtatErreur } from "../components/EtatErreur";
@@ -28,7 +29,7 @@ export function Recherche() {
     typeInitial === "caf" || typeInitial === "cpam" ? typeInitial : "mairie",
   );
   const [saisie, setSaisie] = useState(saisieInitiale);
-  const [lieu, setLieu] = useState<Lieu | null>(null);
+  const [lieu, setLieu] = useState<Lieu | null>(() => lireLieuRecherche(parametres));
   const geo = useRechercheLieu(lieu ? "" : saisie);
   const annuaire = useRecherche(
     lieu ? urlOrganismes(lieu.codeInsee) : null,
@@ -47,11 +48,9 @@ export function Recherche() {
     const prochainType =
       typeParametre === "caf" || typeParametre === "cpam" ? typeParametre : "mairie";
     const prochaineSaisie = parametres.get("lieu") ?? "";
-    if (prochainType !== type || prochaineSaisie !== saisie) {
-      setType(prochainType);
-      setSaisie(prochaineSaisie);
-      setLieu(null);
-    }
+    setType(prochainType);
+    setSaisie(prochaineSaisie);
+    setLieu(lireLieuRecherche(parametres));
   }, [chaineParametres]);
 
   function changerSaisie(valeur: string) {
@@ -101,7 +100,7 @@ export function Recherche() {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          setParametres({ type, lieu: saisie.trim() });
+          setParametres(ecrireRechercheUrl(type, saisie, lieu));
           (lieu ? annuaire : geo).relancer();
         }}
       >
@@ -109,7 +108,10 @@ export function Recherche() {
           label="Type d’organisme"
           nativeSelectProps={{
             value: type,
-            onChange: (event) => setType(event.target.value),
+            onChange: (event) => {
+              setType(event.target.value);
+              if (lieu) setParametres(ecrireRechercheUrl(event.target.value, saisie, lieu));
+            },
           }}
         >
           <option value="mairie">Mairie</option>
@@ -181,6 +183,7 @@ export function Recherche() {
                       onClick={() => {
                         geo.annuler();
                         setLieu(proposition);
+                        setParametres(ecrireRechercheUrl(type, saisie, proposition));
                         setFocaliserResultats(true);
                       }}
                     >
