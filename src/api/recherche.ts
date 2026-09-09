@@ -8,9 +8,40 @@ export type EtatRecherche =
 export type ExecuterRecherche = (url: string, signal: AbortSignal) => Promise<unknown>;
 
 export const lireJson: ExecuterRecherche = async (url, signal) => {
-  const reponse = await fetch(url, { signal });
-  if (!reponse.ok) throw new Error('Échec de la requête HTTP.');
-  return reponse.json();
+  const controleurTimeout = new AbortController();
+  let delaiDepasse = false;
+
+  const minuterie = setTimeout(() => {
+    delaiDepasse = true;
+    controleurTimeout.abort();
+  }, 2000);
+
+  try {
+    const signalCombine = AbortSignal.any([
+      signal,
+      controleurTimeout.signal,
+    ]);
+
+    const reponse = await fetch(url, {
+      signal: signalCombine,
+    });
+
+    if (!reponse.ok) {
+      throw new Error("Échec de la requête HTTP.");
+    }
+
+    return await reponse.json();
+  } catch (erreur) {
+    if (delaiDepasse) {
+      throw new Error(
+        "Le service met trop de temps à répondre. Veuillez réessayer.",
+      );
+    }
+
+    throw erreur;
+  } finally {
+    clearTimeout(minuterie);
+  }
 };
 
 /** Logique sans React : une instance par recherche indépendante. */
