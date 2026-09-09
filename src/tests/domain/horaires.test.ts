@@ -56,3 +56,22 @@ test('normalise les informations d’accessibilité et les notes générales de 
   expect(fiche.horaires.qualite).toBe('a-confirmer');
   expect(normaliserFiche(null).accessibilite).toEqual([]);
 });
+
+test.each([
+  ['80021', '2026-07-14T08:00:00Z', '14 juillet'],
+  ['67482', '2026-04-03T08:00:00Z', 'Vendredi saint'],
+  ['97105', '2026-05-27T14:00:00Z', 'Abolition'],
+  ['97411', '2026-12-19T22:00:00Z', 'Abolition'],
+])('ne prétend pas être ouvert un jour férié local : %s %s', (code, date, nom) => {
+  const resultat = calculerOuverture(normaliserHoraires([plage], '', code), new Date(date));
+  expect(resultat).toContain('à confirmer');
+  expect(resultat.toLowerCase()).toContain(nom.toLowerCase());
+});
+
+test('un calendrier périmé ne permet pas d’affirmer une ouverture', () => {
+  expect(calculerOuverture(horaires, new Date('2100-09-06T08:00:00Z'))).toContain('calendrier des jours fériés indisponible');
+});
+
+test('le vendredi saint alsacien ne bloque pas un guichet en dehors de cette zone', () => {
+  expect(calculerOuverture(horaires, new Date('2026-04-03T08:00:00Z'))).toContain('Ouvert actuellement');
+});

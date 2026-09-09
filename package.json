@@ -15,6 +15,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:browser": "node scripts/validation-navigateur.mjs",
+    "calendrier:actualiser": "node scripts/actualiser-jours-feries.mjs",
     "postinstall": "copy-dsfr-to-public && node scripts/copy-dsfr-assets.mjs"
   },
   "type": "module",
@@ -32,6 +34,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "axe-core": "^4.13.0",
     "jsdom": "^29.0.0",
+    "playwright": "^1.63.0",
     "typescript": "^5.9.3",
     "vite": "^8.2.2",
     "vitest": "^5.0.0",

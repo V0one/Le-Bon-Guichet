@@ -13,7 +13,10 @@ test('charge toutes les pages de la commune avec le même signal', async () => {
   const resultats = await lireAnnuaire(urlOrganismes('80021'), controleur.signal);
   expect(resultats.results).toHaveLength(2);
   expect(new URL(fetchMock.mock.calls[1][0]).searchParams.get('offset')).toBe('1');
-  expect(fetchMock.mock.calls[1][1].signal).toBe(controleur.signal);
+  const signaux = fetchMock.mock.calls.map(appel => appel[1].signal as AbortSignal);
+  expect(signaux.every(signal => !signal.aborted)).toBe(true);
+  controleur.abort();
+  expect(signaux.every(signal => signal.aborted)).toBe(true);
 });
 test('une page manquante ne publie pas un total incomplet', async () => {
   globalThis.fetch = vi.fn().mockResolvedValue(page([], 2));

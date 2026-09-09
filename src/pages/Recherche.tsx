@@ -109,8 +109,8 @@ export function Recherche() {
           nativeSelectProps={{
             value: type,
             onChange: (event) => {
-              setType(event.target.value);
               if (lieu) setParametres(ecrireRechercheUrl(event.target.value, saisie, lieu));
+              else setType(event.target.value);
             },
           }}
         >

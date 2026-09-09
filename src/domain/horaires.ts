@@ -1,4 +1,5 @@
 import { objet, texte } from './organisme';
+import { jourFerie, zoneCalendrier } from './joursFeries';
 
 export const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 interface Creneau { debut: number; fin: number }
@@ -7,6 +8,7 @@ export interface Horaires {
   notes: string[];
   qualite: 'absents' | 'exploitables' | 'a-confirmer';
   fuseau: string | null;
+  zoneCalendrier: string | null;
 }
 
 function fuseauCommune(code: unknown): string | null {
@@ -72,7 +74,7 @@ export function normaliserHoraires(valeur: unknown, commentaire: unknown, codeIn
     }
   }
   if (invalide) notes.push('Certaines plages horaires sont incomplètes ou illisibles.');
-  return { semaine, notes: [...new Set(notes)], fuseau: fuseauCommune(codeInsee),
+  return { semaine, notes: [...new Set(notes)], fuseau: fuseauCommune(codeInsee), zoneCalendrier: zoneCalendrier(texte(codeInsee)),
     qualite: invalide || notes.length ? 'a-confirmer' : semaine.some(j => j.length) ? 'exploitables' : 'absents' };
 }
 
@@ -86,8 +88,12 @@ export function calculerOuverture(horaires: Horaires, maintenant: Date): string 
   if (horaires.qualite !== 'exploitables') return 'Ouverture à confirmer auprès du guichet.';
   if (!horaires.fuseau || !Number.isFinite(maintenant.getTime())) return 'Ouverture indéterminée : heure locale non disponible.';
   const parties = new Intl.DateTimeFormat('fr-FR', { timeZone: horaires.fuseau,
+    year: 'numeric', month: '2-digit', day: '2-digit',
     weekday: 'long', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(maintenant);
   const lire = (type: string) => parties.find(p => p.type === type)?.value ?? '';
+  const ferie = jourFerie(`${lire('year')}-${lire('month')}-${lire('day')}`, horaires.zoneCalendrier);
+  if (ferie === null) return 'Ouverture à confirmer : calendrier des jours fériés indisponible pour cette date ou ce territoire.';
+  if (ferie) return `Ouverture à confirmer : ${ferie}, jour férié ou particularité locale à vérifier auprès du guichet.`;
   const jour = JOURS.findIndex(j => j.toLowerCase() === lire('weekday'));
   const heure = Number(lire('hour')) * 3600 + Number(lire('minute')) * 60 + Number(lire('second'));
   if (horaires.semaine[jour]?.length === 0) return 'Fermé aujourd’hui selon les horaires habituels.';

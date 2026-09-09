@@ -9,16 +9,9 @@ export function Introduction() {
     <>
       <CallOut title="Que fait Le Bon Guichet ?" titleAs="h2" iconId="fr-icon-information-line">
         Le Bon Guichet vous aide à identifier l’administration compétente pour
-        votre démarche et à la contacter :
-        <ul className="fr-mt-1w fr-mb-0">
-          <li>trouver la bonne administration ;</li>
-          <li>rechercher par type d’organisme (mairie, préfecture, CAF…) ;</li>
-          <li>rechercher par localisation (commune ou code postal) ;</li>
-          <li>consulter les horaires d’ouverture ;</li>
-          <li>consulter les coordonnées (adresse, téléphone, site internet) ;</li>
-          <li>consulter les informations d’accessibilité physique ;</li>
-          <li>savoir si le guichet est ouvert maintenant.</li>
-        </ul>
+        votre démarche et à la contacter. Recherchez une mairie, une CAF ou une
+        CPAM par commune ou code postal, puis consultez ses coordonnées,
+        ses horaires, son état d’ouverture et les informations d’accessibilité physique.
       </CallOut>
 
       <h2 className="fr-h4 fr-mt-4w">Ce que vous devez saisir</h2>

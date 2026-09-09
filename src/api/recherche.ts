@@ -14,7 +14,7 @@ export const lireJson: ExecuterRecherche = async (url, signal) => {
   const minuterie = setTimeout(() => {
     delaiDepasse = true;
     controleurTimeout.abort();
-  }, 2000);
+  }, 15000);
 
   try {
     const signalCombine = AbortSignal.any([

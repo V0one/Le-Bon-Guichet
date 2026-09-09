@@ -195,3 +195,18 @@ test('le délai est configurable et les valeurs invalides sont refusées', () =>
   expect(() => creerRecherche(undefined, NaN)).toThrow();
   expect(() => creerRecherche(undefined, Infinity)).toThrow();
 });
+
+test('une API qui ne répond pas termine en erreur après 15 secondes, puis peut être relancée', async () => {
+  fetchMock.mockImplementationOnce((_url, options) => new Promise((_resolve, reject) => {
+    options.signal.addEventListener('abort', () => reject(new DOMException('Annulé', 'AbortError')));
+  }));
+  const recherche = creerRecherche();
+  recherche.rechercher('/lente');
+  await vi.advanceTimersByTimeAsync(300 + 14999);
+  expect(recherche.getEtat().statut).toBe('chargement');
+  await vi.advanceTimersByTimeAsync(1);
+  expect(recherche.getEtat().statut).toBe('erreur');
+  recherche.rechercher('/lente');
+  await vi.advanceTimersByTimeAsync(300);
+  expect(recherche.getEtat().statut).toBe('succes');
+});
