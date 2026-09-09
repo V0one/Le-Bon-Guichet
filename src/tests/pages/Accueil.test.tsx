@@ -1,5 +1,5 @@
 ﻿import { act, fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, useLocation, useNavigate } from 'react-router';
 import { vi, type Mock } from 'vitest';
 import Accueil from '../../pages/Accueil';
 
@@ -17,6 +17,42 @@ function differee<T>() {
 async function avancer(ms = 300) { await act(async () => { vi.advanceTimersByTime(ms); }); }
 function saisir(valeur: string) { fireEvent.change(screen.getByLabelText(/Localisation/), { target: { value: valeur } }); }
 function afficher() { render(<MemoryRouter><Accueil /></MemoryRouter>); }
+
+function NavigationTest() {
+  const location = useLocation();
+  const naviguer = useNavigate();
+  return <>
+    <output aria-label="URL de recherche">{location.search}</output>
+    <button onClick={() => naviguer(-1)}>Retour navigateur</button>
+  </>;
+}
+
+test('la fusion conserve les critères de l’URL et leur restauration au retour navigateur', async () => {
+  render(<MemoryRouter initialEntries={['/?type=caf&lieu=Paris']}>
+    <Accueil /><NavigationTest />
+  </MemoryRouter>);
+  expect(screen.getByLabelText(/Localisation/)).toHaveValue('Paris');
+  expect(screen.getByLabelText('Type d’organisme')).toHaveValue('caf');
+  saisir('Amiens');
+  fireEvent.change(screen.getByLabelText('Type d’organisme'), { target: { value: 'mairie' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Rechercher' }));
+  expect(screen.getByLabelText('URL de recherche')).toHaveTextContent('type=mairie&lieu=Amiens');
+  fireEvent.click(screen.getByRole('button', { name: 'Retour navigateur' }));
+  expect(screen.getByLabelText(/Localisation/)).toHaveValue('Paris');
+  expect(screen.getByLabelText('Type d’organisme')).toHaveValue('caf');
+});
+
+test('la réinitialisation efface les paramètres tout en rendant le focus à la saisie', async () => {
+  fetchMock.mockResolvedValueOnce(reponse({ features: [] }));
+  render(<MemoryRouter initialEntries={['/?type=mairie&lieu=zzzzzz']}>
+    <Accueil /><NavigationTest />
+  </MemoryRouter>);
+  await avancer();
+  fireEvent.click(screen.getByRole('button', { name: 'Effacer la recherche' }));
+  expect(screen.getByLabelText('URL de recherche')).toBeEmptyDOMElement();
+  expect(screen.getByLabelText(/Localisation/)).toHaveValue('');
+  expect(screen.getByLabelText(/Localisation/)).toHaveFocus();
+});
 async function choisirLieu() {
   saisir('Amiens'); await avancer();
   fireEvent.click(screen.getByRole('button', { name: 'Amiens' })); await avancer();

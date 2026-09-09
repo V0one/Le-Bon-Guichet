@@ -1,4 +1,5 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router";
 import Input from "@codegouvfr/react-dsfr/Input";
 import Select from "@codegouvfr/react-dsfr/Select";
 import Button from "@codegouvfr/react-dsfr/Button";
@@ -19,8 +20,14 @@ import { EtatVide } from "../components/EtatVide";
 import "./Recherche.css";
 
 export function Recherche() {
-  const [type, setType] = useState("mairie");
-  const [saisie, setSaisie] = useState("");
+  const [parametres, setParametres] = useSearchParams();
+  const chaineParametres = parametres.toString();
+  const typeInitial = parametres.get("type");
+  const saisieInitiale = parametres.get("lieu") ?? "";
+  const [type, setType] = useState(
+    typeInitial === "caf" || typeInitial === "cpam" ? typeInitial : "mairie",
+  );
+  const [saisie, setSaisie] = useState(saisieInitiale);
   const [lieu, setLieu] = useState<Lieu | null>(null);
   const geo = useRechercheLieu(lieu ? "" : saisie);
   const annuaire = useRecherche(
@@ -35,6 +42,18 @@ export function Recherche() {
     document.title = "Recherche - Le Bon Guichet";
   }, []);
 
+  useEffect(() => {
+    const typeParametre = parametres.get("type");
+    const prochainType =
+      typeParametre === "caf" || typeParametre === "cpam" ? typeParametre : "mairie";
+    const prochaineSaisie = parametres.get("lieu") ?? "";
+    if (prochainType !== type || prochaineSaisie !== saisie) {
+      setType(prochainType);
+      setSaisie(prochaineSaisie);
+      setLieu(null);
+    }
+  }, [chaineParametres]);
+
   function changerSaisie(valeur: string) {
     geo.annuler();
     annuaire.annuler();
@@ -44,6 +63,7 @@ export function Recherche() {
 
   function reinitialiser() {
     changerSaisie("");
+    setParametres({});
     localisation.current?.focus();
   }
 
@@ -81,6 +101,7 @@ export function Recherche() {
       <form
         onSubmit={(event) => {
           event.preventDefault();
+          setParametres({ type, lieu: saisie.trim() });
           (lieu ? annuaire : geo).relancer();
         }}
       >
