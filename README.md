@@ -99,7 +99,34 @@ npm run build
 
 Les tests vérifient notamment les données nulles, les horaires et leurs limites, les jours fériés locaux, les réponses obsolètes, l’annulation, l’expiration, les états des pages, les URL partagées et la gestion du focus. Des analyses axe-core couvrent l’accueil, les résultats et la fiche. Les tests jsdom ne mesurent pas le rendu visuel ni le contraste.
 
-La CI `.github/workflows/CI.yml` exécute `npm ci`, les tests et le build sur Node 24, pour les PR et les pushes vers `main`. Les seuils de couverture demandés par le sujet ne sont pas encore configurés ou attestés par un rapport.
+La CI `.github/workflows/CI.yml` exécute `npm ci`, les tests et le build sur Node 24, pour les PR et les pushes vers `main`. Elle ne lance pas encore la mesure de couverture et ne publie pas son rapport.
+
+## Couverture des tests
+
+Après installation des dépendances avec `npm ci` :
+
+```sh
+npm run test:coverage
+```
+
+La commande exécute les tests avec le fournisseur V8 et génère :
+
+- `coverage/index.html` : rapport HTML à ouvrir dans un navigateur, avec le détail par fichier ;
+- `coverage/coverage-summary.json` : résultats exploitables automatiquement ;
+- un résumé dans le terminal.
+
+La configuration inclut tous les fichiers TypeScript applicatifs de `src`, même non exécutés par les tests. Seuls les tests, `src/setupTests.ts` et les déclarations `*.d.ts` sont exclus. Les tests navigateur ne contribuent pas à cette mesure Vitest.
+
+La commande échoue si les tests échouent ou si la couverture descend sous **60 % des lignes globalement**, ou sous **90 % des lignes et des branches pour l’ensemble de `src/domain`**. Les seuils métier portent sur le dossier agrégé, pas sur chaque fichier pris séparément.
+
+Mesure du 10 septembre 2026 : **113 tests réussis**.
+
+| Périmètre | Lignes | Branches | Seuil demandé |
+| --- | --- | --- | --- |
+| `src/domain` | 100 % (132/132) | 93,06 % (161/173) | 90 % lignes et branches |
+| Global `src` | 97,16 % (309/318) | 92,83 % (298/321) | 60 % lignes |
+
+Le rapport est généré localement pour consultation. Le dossier `coverage` reste ignoré par Git ; le rapport n’est pas encore versionné ni publié par la CI.
 
 ## Validation dans Chrome
 
@@ -122,4 +149,4 @@ Les erreurs réseau des scénarios de panne sont attendues dans la console déve
 
 Un test navigateur automatisé ne remplace pas une écoute avec un lecteur d’écran. La soutenance doit encore démontrer les scénarios demandés sur son poste et son réseau.
 
-Dernière validation locale : le 9 septembre 2026, 8 scénarios réussis dans Chrome 152 avec les API réelles, 105 tests Vitest réussis et build TypeScript/Vite réussi. Le pied de page conserve exactement sa position entre chargement et résultats, aux largeurs 1280 et 390 pixels. Le parcours nominal ne produit aucune erreur console. Les états horaires ont aussi été vérifiés sur une fiche réelle avec une horloge simulée.
+Dernière validation navigateur : le 9 septembre 2026, 8 scénarios réussis dans Chrome 152 avec les API réelles. Le pied de page conserve exactement sa position entre chargement et résultats, aux largeurs 1280 et 390 pixels. Le parcours nominal ne produit aucune erreur console. Les états horaires ont aussi été vérifiés sur une fiche réelle avec une horloge simulée. La mesure Vitest plus récente figure dans la section couverture ci-dessus.

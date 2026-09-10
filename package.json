@@ -15,6 +15,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:browser": "node scripts/validation-navigateur.mjs",
     "calendrier:actualiser": "node scripts/actualiser-jours-feries.mjs",
     "postinstall": "copy-dsfr-to-public && node scripts/copy-dsfr-assets.mjs"
@@ -32,6 +33,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "@vitest/coverage-v8": "5.0.0",
     "axe-core": "^4.13.0",
     "jsdom": "^29.0.0",
     "playwright": "^1.63.0",
