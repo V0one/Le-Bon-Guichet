@@ -74,7 +74,8 @@ Le calcul reçoit explicitement la date courante et utilise le fuseau du guichet
 - Avant une plage restante : « Fermé actuellement — ouvre aujourd’hui à… ».
 - Sans plage ce jour : « Fermé aujourd’hui selon les horaires habituels ».
 - Après la dernière plage : accueil terminé pour aujourd’hui.
-- Horaires absents, malformés, accompagnés d’une note ou fuseau inconnu : ouverture indéterminée ou à confirmer.
+- Horaires absents, malformés ou fuseau inconnu : ouverture indéterminée ou à confirmer.
+- Horaires exploitables accompagnés de notes : état calculé normalement, avec « Selon les horaires habituels ; vérifiez les notes ci-dessous » et un encadré contenant les notes.
 - Jour férié national/local ou calendrier hors période connue : ouverture à confirmer, sans affirmer une fermeture ou une ouverture.
 
 Les notes horaires et les informations complémentaires de l’organisme sont affichées. Leur texte libre n’est pas interprété automatiquement : un rendez-vous, une exception ou une restriction peut changer l’accueil. Une fermeture exceptionnelle non publiée dans l’Annuaire ne peut pas être déduite. L’indicateur décrit donc les horaires habituels, pas une présence certifiée en temps réel. Il est actualisé chaque seconde et au retour sur l’onglet.

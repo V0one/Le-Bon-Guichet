@@ -24,11 +24,22 @@ test.each([null, undefined, {}, 'invalide', [null], [{ ...plage, valeur_heure_fi
     expect(calculerOuverture(resultat, new Date('2026-09-07T08:00:00Z'))).not.toMatch(/^(Ouvert|Fermé) actuellement/);
   });
 
-test('une note de rendez-vous impose une confirmation même pendant une plage', () => {
+test.each([
+  ['2026-09-07T08:00:00Z', 'Ouvert actuellement'],
+  ['2026-09-07T10:00:00Z', 'ouvre aujourd’hui à 14:00'],
+  ['2026-09-06T10:00:00Z', 'Fermé aujourd’hui'],
+])('une note conserve le calcul des horaires habituels : %s', (date, attendu) => {
   const resultat = normaliserHoraires([plage], 'Accueil sur rendez-vous.', '80021');
   expect(resultat.notes).toContain('Accueil sur rendez-vous.');
-  expect(calculerOuverture(resultat, new Date('2026-09-07T08:00:00Z'))).toContain('à confirmer');
+  expect(calculerOuverture(resultat, new Date(date))).toContain(attendu);
 });
+
+test.each([null, [{ ...plage, valeur_heure_fin_1: null }]].map(valeur => ({ valeur })))(
+  'des notes ne rendent pas exploitables des horaires absents ou incomplets : $valeur', ({ valeur }) => {
+    const resultat = normaliserHoraires(valeur, 'Accueil sur rendez-vous.', '80021');
+    expect(resultat.qualite).not.toBe('exploitables');
+    expect(calculerOuverture(resultat, new Date('2026-09-07T08:00:00Z'))).not.toContain('Ouvert actuellement');
+  });
 
 test('utilise le fuseau ultramarin et ne devine pas celui des territoires à plusieurs fuseaux', () => {
   expect(calculerOuverture(normaliserHoraires([plage], '', '97411'), new Date('2026-09-07T05:00:00Z'))).toContain('Ouvert');
@@ -53,7 +64,8 @@ test('normalise les informations d’accessibilité et les notes générales de 
       type_adresse: 'Adresse', accessibilite: 'Accessible', note_accessibilite: 'Entrée latérale.',
     }]) });
   expect(fiche.accessibilite[0].note).toBe('Entrée latérale.');
-  expect(fiche.horaires.qualite).toBe('a-confirmer');
+  expect(fiche.horaires.qualite).toBe('exploitables');
+  expect(fiche.horaires.notes).toContain('Sur rendez-vous.');
   expect(normaliserFiche(null).accessibilite).toEqual([]);
 });
 

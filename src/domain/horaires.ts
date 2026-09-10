@@ -75,7 +75,7 @@ export function normaliserHoraires(valeur: unknown, commentaire: unknown, codeIn
   }
   if (invalide) notes.push('Certaines plages horaires sont incomplètes ou illisibles.');
   return { semaine, notes: [...new Set(notes)], fuseau: fuseauCommune(codeInsee), zoneCalendrier: zoneCalendrier(texte(codeInsee)),
-    qualite: invalide || notes.length ? 'a-confirmer' : semaine.some(j => j.length) ? 'exploitables' : 'absents' };
+    qualite: invalide ? 'a-confirmer' : semaine.some(j => j.length) ? 'exploitables' : 'absents' };
 }
 
 export function afficherHeure(secondes: number): string {
