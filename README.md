@@ -100,6 +100,8 @@ npm run build
 
 Les tests vérifient notamment les données nulles, les horaires et leurs limites, les jours fériés locaux, les réponses obsolètes, l’annulation, l’expiration, les états des pages, les URL partagées et la gestion du focus. Des analyses axe-core couvrent l’accueil, les résultats et la fiche. Les tests jsdom ne mesurent pas le rendu visuel ni le contraste.
 
+Dernière exécution après la modification de l’affichage des notes horaires : **117 tests réussis**, ainsi que le build TypeScript/Vite.
+
 La CI `.github/workflows/CI.yml` exécute `npm ci`, les tests et le build sur Node 24, pour les PR et les pushes vers `main`. Elle ne lance pas encore la mesure de couverture et ne publie pas son rapport.
 
 ## Couverture des tests
@@ -120,14 +122,16 @@ La configuration inclut tous les fichiers TypeScript applicatifs de `src`, même
 
 La commande échoue si les tests échouent ou si la couverture descend sous **60 % des lignes globalement**, ou sous **90 % des lignes et des branches pour l’ensemble de `src/domain`**. Les seuils métier portent sur le dossier agrégé, pas sur chaque fichier pris séparément.
 
-Mesure du 10 septembre 2026 : **113 tests réussis**.
+Le rapport versionné correspond à la mesure du 10 septembre 2026, avec **113 tests réussis**, avant la modification de l’affichage des notes horaires. Les pourcentages ci-dessous sont ceux de cette mesure ; ils restent à actualiser pour la suite actuelle de 117 tests.
 
 | Périmètre | Lignes | Branches | Seuil demandé |
 | --- | --- | --- | --- |
 | `src/domain` | 100 % (132/132) | 93,06 % (161/173) | 90 % lignes et branches |
 | Global `src` | 97,16 % (309/318) | 92,83 % (298/321) | 60 % lignes |
 
-Le rapport est généré localement pour consultation. Le dossier `coverage` reste ignoré par Git ; le rapport n’est pas encore versionné ni publié par la CI.
+Le [rapport HTML](coverage/index.html) et le [résumé JSON](coverage/coverage-summary.json) sont versionnés dans le dépôt depuis le commit `53334ac`. Ils sont générés localement avec `npm run test:coverage` ; la CI ne les régénère ni ne les publie automatiquement.
+
+La règle `/coverage` reste dans `.gitignore`, mais les fichiers déjà suivis restent versionnés. Après une nouvelle mesure, vérifier le rapport puis utiliser `git add -f coverage/` pour inclure également les éventuels nouveaux fichiers générés avant de commit et pousser.
 
 ## Validation dans Chrome
 
